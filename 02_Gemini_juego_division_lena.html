@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Las aventuras de división de Lena</title>
+    <!-- Librería html2canvas para las capturas de pantalla -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary-pink: #FF2A85;
+            --light-pink: #FFE4EC;
+            --accent-blue: #00A8CC;
+            --accent-yellow: #FFD166;
+            --accent-green: #06D6A0;
+            --city-dark: #2B2D42;
+            --white: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--light-pink) 0%, #E0F7FA 100%);
+            color: var(--city-dark);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .main-wrapper {
+            max-width: 850px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        header {
+            background-color: var(--white);
+            border: 4px solid var(--primary-pink);
+            border-radius: 20px;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 10px 25px rgba(255, 42, 133, 0.2);
+        }
+
+        .lena-avatar {
+            width: 85px;
+            height: 85px;
+            background: var(--accent-yellow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--primary-pink);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .header-text h1 {
+            color: var(--primary-pink);
+            margin: 0;
+            font-size: 1.7rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            color: var(--accent-blue);
+            font-size: 1rem;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        /* Área de captura exacta desde el enunciado hacia abajo */
+        .capture-area {
+            background-color: var(--white);
+            border: 4px solid var(--accent-blue);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 168, 204, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .city-banner {
+            background-color: var(--accent-yellow);
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            border: 2px solid #E6BE52;
+            color: #594100;
+        }
+
+        .problem-card {
+            background-color: var(--light-pink);
+            border-left: 6px solid var(--primary-pink);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.15rem;
+            line-height: 1.5;
+        }
+
+        .division-workspace {
+            background-color: #FFFDF0;
+            border: 2px solid var(--accent-yellow);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .workspace-title {
+            color: var(--accent-blue);
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 1.05rem;
+        }
+
+        /* Casita de división con alineación CSS Grid perfecta al modelo */
+        .division-grid {
+            display: grid;
+            grid-template-columns: 35px 54px 54px 20px 54px;
+            grid-template-rows: auto auto 3px auto;
+            align-items: center;
+            justify-content: center;
+            background: #FFF;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            position: relative;
+        }
+
+        .pink-cell {
+            width: 52px;
+            height: 44px;
+            border: 3px solid var(--primary-pink);
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--city-dark);
+            background: #FFF;
+            outline: none;
+        }
+
+        .pink-cell:focus {
+            background: var(--light-pink);
+            box-shadow: 0 0 8px rgba(255, 42, 133, 0.4);
+        }
+
+        .minus-symbol {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-align: center;
+            color: var(--city-dark);
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        #divBox1 { grid-column: 2; grid-row: 1; }
+        #divBox2 { grid-column: 3; grid-row: 1; }
+        
+        .quotient-wrapper {
+            grid-column: 5;
+            grid-row: 1;
+            position: relative;
+            padding-left: 12px;
+            border-left: 3px solid var(--accent-blue);
+        }
+
+        .quotient-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: calc(100% + 12px);
+            height: 3px;
+            background: var(--accent-blue);
+        }
+
+        #prodBox1 { grid-column: 2; grid-row: 2; }
+        #prodBox2 { grid-column: 3; grid-row: 2; }
+        #remMidBox { grid-column: 5; grid-row: 2; }
+
+        .grid-horizontal-line {
+            grid-column: 2 / span 2;
+            grid-row: 3;
+            background: var(--accent-blue);
+            height: 3px;
+            width: 100%;
+        }
+
+        #downBox1 { grid-column: 2; grid-row: 4; }
+        #downBox2 { grid-column: 3; grid-row: 4; }
+
+        .answers-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .input-group {
+            background: var(--white);
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 2px solid var(--accent-green);
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: #2D6A4F;
+            font-size: 0.95rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 6px;
+            font-size: 1.1rem;
+            text-align: center;
+            border: 2px solid var(--accent-green);
+            border-radius: 6px;
+            outline: none;
+        }
+
+        .full-answer-section textarea {
+            width: 100%;
+            height: 70px;
+            padding: 10px;
+            border: 2px solid var(--accent-yellow);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            resize: vertical;
+            outline: none;
+        }
+
+        .actions-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        button.btn {
+            background-color: var(--primary-pink);
+            color: var(--white);
+            border: none;
+            padding: 10px 18px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        button.btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        button.btn-blue { background-color: var(--accent-blue); }
+        button.btn-green { background-color: var(--accent-green); color: var(--city-dark); }
+        button.btn-yellow { background-color: var(--accent-yellow); color: var(--city-dark); }
+
+        .feedback-box {
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback-success {
+            background-color: #D4EDDA;
+            color: #155724;
+            border: 2px solid var(--accent-green);
+        }
+
+        .feedback-error {
+            background-color: #F8D7DA;
+            color: #721C24;
+            border: 2px solid var(--primary-pink);
+        }
+
+        .stats-footer {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-wrapper">
+        <header>
+            <div class="lena-avatar">
+                <svg viewBox="0 0 100 100" width="80" height="80">
+                    <circle cx="50" cy="50" r="48" fill="#FFE4EC" stroke="#FF2A85" stroke-width="3"/>
+                    <path d="M28 38 Q50 18 72 38 Q78 62 70 82 Q50 92 30 82 Q22 62 28 38Z" fill="#4A2E1B"/>
+                    <rect x="23" y="30" width="54" height="8" rx="4" fill="#FF2A85"/>
+                    <circle cx="50" cy="54" r="22" fill="#F5C29A"/>
+                    <circle cx="42" cy="51" r="3" fill="#2B2D42"/>
+                    <circle cx="58" cy="51" r="3" fill="#2B2D42"/>
+                    <path d="M46 61 Q50 66 54 61" stroke="#2B2D42" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path d="M35 74 L65 74 L72 95 L28 95 Z" fill="#FF8800"/>
+                    <circle cx="50" cy="82" r="5" fill="#FFD166"/>
+                </svg>
+            </div>
+            <div class="header-text">
+                <h1>Las aventuras de división de Lena 🚲🏙️</h1>
+                <div class="subtitle">¡Practica, ahorra y domina la división paso a paso!</div>
+            </div>
+        </header>
+
+        <!-- Área de captura exacta desde el enunciado hacia abajo -->
+        <div class="capture-area" id="captureArea">
+            <div class="city-banner">
+                🌟 Retos financieros y urbanos completados: <span id="score">0</span>
+            </div>
+
+            <div class="problem-card" id="problemText">
+                Cargando problema...
+            </div>
+
+            <!-- Casita de división perfectamente alineada -->
+            <div class="division-workspace">
+                <div class="workspace-title">📝 Algoritmo de la División (Modelo Estándar)</div>
+                
+                <div class="division-grid">
+                    <!-- Fila 1 -->
+                    <input type="text" id="divBox1" class="pink-cell" maxlength="1">
+                    <input type="text" id="divBox2" class="pink-cell" maxlength="1">
+                    <div class="quotient-wrapper">
+                        <input type="text" id="quotientBox" class="pink-cell" maxlength="1">
+                    </div>
+
+                    <!-- Fila 2 -->
+                    <div class="minus-symbol">−</div>
+                    <input type="text" id="prodBox1" class="pink-cell" maxlength="1">
+                    <input type="text" id="prodBox2" class="pink-cell" maxlength="1">
+                    <input type="text" id="remMidBox" class="pink-cell" maxlength="1">
+
+                    <!-- Línea horizontal divisoria -->
+                    <div class="grid-horizontal-line"></div>
+
+                    <!-- Fila 4 -->
+                    <input type="text" id="downBox1" class="pink-cell" maxlength="1">
+                    <input type="text" id="downBox2" class="pink-cell" maxlength="1">
+                </div>
+            </div>
+
+            <!-- Inputs de respuestas finales -->
+            <div class="answers-section">
+                <div class="input-group">
+                    <label for="inputCociente">Cociente final:</label>
+                    <input type="number" id="inputCociente" placeholder="Ej: 4">
+                </div>
+                <div class="input-group">
+                    <label for="inputResiduo">Residuo final:</label>
+                    <input type="number" id="inputResiduo" placeholder="Ej: 1">
+                </div>
+            </div>
+
+            <div class="full-answer-section">
+                <label for="inputRespuestaCompleta" style="font-weight: bold; color: var(--accent-blue); display:block; margin-bottom:5px;">Respuesta completa del problema:</label>
+                <textarea id="inputRespuestaCompleta" placeholder="Escribe aquí con palabras tu respuesta completa..."></textarea>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="actions-panel">
+                <button class="btn btn-green" onclick="procesarRespuesta()">Procesar Respuesta</button>
+                <button class="btn btn-yellow" onclick="generarProblema()">Siguiente Reto</button>
+                <button class="btn btn-blue" onclick="copiarCaptura()">Copiar Captura</button>
+                <button class="btn btn-blue" onclick="descargarCaptura()">Descargar Captura</button>
+            </div>
+
+            <div id="feedbackBox" class="feedback-box"></div>
+        </div>
+
+        <div class="stats-footer">
+            Colombia
+        </div>
+    </div>
+
+    <script>
+        let currentD = 0;
+        let currentN = 0;
+        let correctQ = 0;
+        let correctR = 0;
+        let score = 0;
+
+        // 25 contextos enriquecidos (15 regionales + 10 de educación financiera)
+        const contextos = [
+            // --- Contextos regionales originales (15) ---
+            (N, d) => `Lena pasea en bicicleta por Bogotá y compró <b>${N}</b> calcomanías brillantes. Si las quiere repartir equitativamente en <b>${d}</b> páginas de su álbum, ¿cuántas calcomanías van en cada página y cuántas sobran?`,
+            (N, d) => `En una feria escolar en Medellín, Lena tiene <b>${N}</b> fichas de colores y las quiere repartir exactamente entre sus <b>${d}</b> mejores amigos. ¿Cuántas fichas le corresponden a cada uno y cuántas sobran?`,
+            (N, d) => `Lena está organizando su taller de postres en Cali con <b>${N}</b> alfajores. Si los acomoda en <b>${d}</b> cajitas con la misma cantidad, ¿cuántos alfajores van en cada caja y cuántos quedan sueltos?`,
+            (N, d) => `De vacaciones en las playas de Cartagena, Lena tejió <b>${N}</b> manillas de colores. Si las distribuye por igual en <b>${d}</b> cajitas de recuerdo, ¿cuántas manillas van en cada caja y cuántas sobran?`,
+            (N, d) => `Preparándose para el Carnaval de Barranquilla, Lena elaboró <b>${N}</b> flores de papel. Si las agrupa en <b>${d}</b> carrozas con la misma cantidad, ¿cuántas flores hay en cada carroza y cuántas sobran?`,
+            (N, d) => `En un festival gastronómico en Bucaramanga, Lena horneó <b>${N}</b> arepas de maíz. Si las reparte equitativamente en <b>${d}</b> bandejas, ¿cuántas arepas van en cada bandeja y cuántas quedan sin servir?`,
+            (N, d) => `En la biblioteca de su colegio en Manizales, Lena organizó <b>${N}</b> libros de cuentos. Si los distribuye por igual en <b>${d}</b> estantes, ¿cuántos libros van en cada estante y cuántos sobran?`,
+            (N, d) => `Ayudando en una granja escolar en Pereira, Lena recolectó <b>${N}</b> granos de café para sembrar. Si los reparte en <b>${d}</b> materas con la misma cantidad, ¿cuántos granos van en cada matera y cuántos sobran?`,
+            (N, d) => `Caminando por la bahía de Santa Marta, Lena recolectó <b>${N}</b> conchas marinas. Si las acomoda en <b>${d}</b> frascos de cristal por igual, ¿cuántas conchas van en cada frasco y cuántas sobran?`,
+            (N, d) => `En el Llano, cerca de Villavicencio, Lena compró <b>${N}</b> mandarinas jugosas. Si las reparte en <b>${d}</b> bolsas para sus amigos, ¿cuántas mandarinas van en cada bolsa y cuántas sobran?`,
+            (N, d) => `En su clase de música en Ibagué, Lena tiene <b>${N}</b> partituras y las quiere repartir entre <b>${d}</b> atriles de forma equitativa. ¿Cuántas partituras van en cada atril y cuántas sobran?`,
+            (N, d) => `En una papelería de Cúcuta, Lena compró <b>${N}</b> lápices de colores. Si los agrupa en <b>${d}</b> estuches con la misma cantidad, ¿cuántos lápices van en cada estuche y cuántos sobran?`,
+            (N, d) => `En el clima frío de Tunja, Lena tejió <b>${N}</b> bufandas pequeñas para regalar a <b>${d}</b> fundaciones. ¿Cuántas bufandas le corresponden a cada fundación y cuántas sobran?`,
+            (N, d) => `Visitando un taller artesanal en Pasto, Lena tiene <b>${N}</b> figuras de barniz y las quiere exhibir en <b>${d}</b> repisas iguales. ¿Cuántas figuras van en cada repisa y cuántas sobran?`,
+            (N, d) => `En una tarde familiar en Armenia, Lena preparó <b>${N}</b> empanaditas típicas. Si las sirve en <b>${d}</b> platos con la misma cantidad, ¿cuántas empanaditas van en cada plato y cuántas sobran?`,
+
+            // --- Nuevos contextos de educación financiera (10) ---
+            (N, d) => `Lena abrió su alcancía para contar sus ahorros y juntó <b>${N}</b> monedas. Si las organiza haciendo montoncitos iguales de <b>${d}</b> monedas para llevarlas al banco escolar, ¿cuántos montoncitos completos logra hacer y cuántas monedas le quedan sueltas?`,
+            (N, d) => `Lena recibió su mesada de <b>${N}</b> pesos y quiere organizarla de forma inteligente para sus gastos durante <b>${d}</b> semanas iguales. ¿Cuánto dinero puede gastar a la semana y cuánto le sobra para su alcancía?`,
+            (N, d) => `Para su emprendimiento escolar, Lena vendió limonada y reunió <b>${N}</b> monedas de ganancia. Si debe repartir el dinero equitativamente entre sus <b>${d}</b> socias del proyecto, ¿cuánto le toca a cada una y cuánto sobra para el fondo de ahorro del negocio?`,
+            (N, d) => `Lena quiere comprarse un libro de finanzas para niños que cuesta varios capítulos. Si el libro tiene en total <b>${N}</b> páginas y ella decide leer <b>${d}</b> páginas por día, ¿en cuántos días completos termina la lectura y cuántas páginas le quedan para el último día?`,
+            (N, d) => `Lena hizo galletas caseras para vender en el recreo y obtuvo <b>${N}</b> billetes de juego o pesos de ganancia. Si los quiere guardar en <b>${d}</b> sobres diferentes para metas distintas (ahorro, diversión y caridad), ¿cuánto dinero va en cada sobre y cuánto queda sin repartir?`,
+            (N, d) => `Lena está juntando dinero para comprarse unos patines y lleva ahorradas <b>${N}</b> monedas en total. Si las cuenta agrupándolas en paquetes de <b>${d}</b> para verificar su meta, ¿cuántos paquetes completos forma y cuántas monedas sueltas le quedan?`,
+            (N, d) => `Lena fue a la feria escolar con un presupuesto de <b>${N}</b> pesos para comprar útiles ecológicos. Si cada libreta cuesta <b>${d}</b> pesos, ¿cuántas libretas completas puede comprar y cuánto cambio le sobra en la billetera?`,
+            (N, d) => `Lena ayudó a organizar la biblioteca familiar y su tío le regaló <b>${N}</b> fichas de incentivo económico. Si decide repartirlas equitativamente en <b>${d}</b> alcancías de su alcancía virtual, ¿cuánto dinero deposita en cada una y cuánto le queda disponible?`,
+            (N, d) => `Para fomentar el ahorro, Lena compró un paquete con <b>${N}</b> calcomanías de metas financieras para repartirlas en partes iguales entre sus <b>${d}</b> primas. ¿Cuántas calcomanías le corresponden a cada prima y cuántas se guarda ella?`,
+            (N, d) => `Lena organizó un taller de manualidades y compró <b>${N}</b> metros de cinta decorativa. Si los recorta en trozos iguales de <b>${d}</b> metros para venderlos, ¿cuántos trozos listos para la venta obtiene y cuántos centímetros le sobran?`
+        ];
+
+        function generarProblema() {
+            document.getElementById('feedbackBox').style.display = 'none';
+            
+            document.getElementById('divBox1').value = '';
+            document.getElementById('divBox2').value = '';
+            document.getElementById('quotientBox').value = '';
+            document.getElementById('prodBox1').value = '';
+            document.getElementById('prodBox2').value = '';
+            document.getElementById('remMidBox').value = '';
+            document.getElementById('downBox1').value = '';
+            document.getElementById('downBox2').value = '';
+            document.getElementById('inputCociente').value = '';
+            document.getElementById('inputResiduo').value = '';
+            document.getElementById('inputRespuestaCompleta').value = '';
+
+            currentD = Math.floor(Math.random() * 8) + 2;
+
+            let isExact = Math.random() < 0.5;
+            if (isExact) {
+                let q = Math.floor(Math.random() * 9) + 1;
+                currentN = currentD * q;
+                if (currentN >= 10 * currentD) {
+                    currentN = currentD * 2;
+                }
+            } else {
+                do {
+                    currentN = Math.floor(Math.random() * (10 * currentD - currentD)) + currentD;
+                } while (currentN % currentD === 0);
+            }
+
+            correctQ = Math.floor(currentN / currentD);
+            correctR = currentN % currentD;
+
+            const strN = currentN.toString();
+            if (strN.length === 1) {
+                document.getElementById('divBox1').value = '';
+                document.getElementById('divBox2').value = strN;
+            } else {
+                document.getElementById('divBox1').value = strN[0];
+                document.getElementById('divBox2').value = strN[1];
+            }
+
+            const templateFn = contextos[Math.floor(Math.random() * contextos.length)];
+            document.getElementById('problemText').innerHTML = templateFn(currentN, currentD);
+        }
+
+        function procesarRespuesta() {
+            const userQ = parseInt(document.getElementById('inputCociente').value);
+            const userR = parseInt(document.getElementById('inputResiduo').value);
+            const userText = document.getElementById('inputRespuestaCompleta').value.trim();
+            const feedbackBox = document.getElementById('feedbackBox');
+
+            if (isNaN(userQ) || isNaN(userR) || userText === "") {
+                feedbackBox.style.display = 'block';
+                feedbackBox.className = 'feedback-box feedback-error';
+                feedbackBox.innerHTML = '¡Por favor completa todos los campos (cociente, residuo y respuesta con palabras) antes de procesar!';
+                return;
+            }
+
+            if (userQ === correctQ && userR === correctR) {
+                score += 10;
+                document.getElementById('score').innerText = score;
+                feedbackBox.style.display = 'block';
+                feedbackBox.className = 'feedback-box feedback-success';
+                feedbackBox.innerHTML = '¡Muy bien, sigue aprovechando tu PODER MATEMÁTICO!';
+            } else {
+                feedbackBox.style.display = 'block';
+                feedbackBox.className = 'feedback-box feedback-error';
+                feedbackBox.innerHTML = 'Revisa la respuesta';
+            }
+        }
+
+        function copiarCaptura() {
+            html2canvas(document.getElementById('captureArea')).then(canvas => {
+                canvas.toBlob(blob => {
+                    navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(() => {
+                        alert('¡Captura copiada al portapapeles con éxito!');
+                    }).catch(err => {
+                        alert('No se pudo copiar automáticamente. Usa la opción de descargar.');
+                    });
+                });
+            });
+        }
+
+        function descargarCaptura() {
+            html2canvas(document.getElementById('captureArea')).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'aventuras_division_lena.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+
+        window.onload = generarProblema;
+    </script>
+</body>
+</html>
